@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "attest-audit-trail"
+version = "1.0.0"
+description = "Tamper-evident audit trail: hash-chained, Ed25519-signed, RFC 3161 anchored, with a regulator-facing evidence pack."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Vincent Plessy" }]
+keywords = ["audit", "audit-trail", "hash-chain", "rfc3161", "tamper-evident", "compliance", "dora"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = [
+    "cryptography>=3.4",
+    "flask>=2.2",
+    "reportlab>=3.6",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "ruff>=0.6"]
+
+[project.scripts]
+attest = "attest.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Vincent-P-essy/audit-trail-api"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/attest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
