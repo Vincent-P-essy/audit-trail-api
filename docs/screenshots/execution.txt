@@ -1,0 +1,49 @@
+$ attest demo
+1. A trail with six signed entries
+╭────────────────── attest verify ───────────────────╮
+│ TRAIL INTACT                                       │
+│ entries        8                                   │
+│ signatures     8 verified                          │
+│ checkpoints    1 verified                          │
+│ unanchored     2 entries since the last checkpoint │
+│                deletable without detection         │
+╰────────────────────────────────────────────────────╯
+
+2. An insider edits an approval amount directly in the database
+   UPDATE runs with the append-only triggers dropped
+╭────────────────── attest verify ───────────────────╮
+│ INTEGRITY FAILURE                                  │
+│ entries        6                                   │
+│ signatures     6 verified                          │
+│ checkpoints    1 verified                          │
+│ unanchored     0 entries since the last checkpoint │
+╰────────────────────────────────────────────────────╯
+                                         Findings                                          
+┏━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ seq ┃ check      ┃ sev      ┃ what it means                                             ┃
+┡━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│   1 │ entry_hash │ critical │ stored hash does not match the entry's contents           │
+│     │            │          │ → this entry's fields were edited after it was written    │
+│     │            │          │   expected abb52015951978fd...  found 2b63b49488cda244... │
+└─────┴────────────┴──────────┴───────────────────────────────────────────────────────────┘
+
+3. The same insider deletes the last two entries instead
+   hash chain alone: no findings — a truncated chain is a valid chain
+╭────────────────── attest verify ───────────────────╮
+│ INTEGRITY FAILURE                                  │
+│ entries        4                                   │
+│ signatures     4 verified                          │
+│ checkpoints    1 verified                          │
+│ unanchored     0 entries since the last checkpoint │
+╰────────────────────────────────────────────────────╯
+                                              Findings                                              
+┏━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ seq ┃ check      ┃ sev      ┃ what it means                                                      ┃
+┡━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│   6 │ truncation │ critical │ a checkpoint commits to sequence 6, but the trail ends at 4        │
+│     │            │          │ → 2 entries were deleted from the end of the trail - a hash chain  │
+│     │            │          │ alone cannot detect this, which is why the checkpoint exists       │
+│     │            │          │   expected head >= 6  found head = 4                               │
+└─────┴────────────┴──────────┴────────────────────────────────────────────────────────────────────┘
+
+Exit: 0
