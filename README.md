@@ -18,12 +18,6 @@ timestamp authority, and exportable as an evidence pack a third party can check
 
 ![attest demo](docs/assets/demo-tamper.png)
 
-## Execution preview
-
-![audit-trail-api execution](docs/screenshots/execution.png)
-
-Local execution of `attest demo`. The input and output shown come from the repository example or test fixtures. [Verification](docs/verification.md).
-
 ## The problem this is actually solving
 
 Hash-chained logs are a well-understood idea, and most implementations of it
